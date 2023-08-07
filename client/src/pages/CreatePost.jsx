@@ -12,26 +12,71 @@ const CreatePost = () => {
   prompt: '',
   photo: '',
   })
-  const [ generatingImg, setGeneraitngImg ] = useState(false)
+  
+  const [ generatingImg, setGeneratingImg ] = useState(false)
   const [ loading, setLoading ] = useState(false)
 
 
+  const handleChange = (e) => setForm({...form, [e.target.name]: e.target.value })
 
-  const generateImg  = () => {
+const handleSurpriseMe = () => {
+    const randomPrompt = getRandomPrompt(form.prompt)
+    setForm({ ...form, prompt: randomPrompt})
 
   }
+//__________generating image from DALL-E API___________
 
-  const handleSubmit = () => {
+  const generateImage  = async () => {
+    if(form.prompt) {
+      try {
+        setGeneratingImg(true);
+        // ______passing data to backend to get back response as image
 
-  }
-  const handleChange = (e) => {
-      setForm({...form, [e.target.name] : e.target.value})
-  }
-  const handleSurpriseMe = () => {
-      const randomPrompt = getRandomPrompt(form.prompt)
-      setForm({ ...form, prompt: randomPrompt})
+        const response = await fetch('http://localhost:8080/api/v1/dalle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+             prompt: form.prompt, 
+          }),
+        })
+        // parse response to json
+        const data = await response.json()
 
+      //   const response = await fetch('http://localhost:8080/api/v1/dalle', {
+      //     method: 'POST',
+      //     headers: {
+      //         'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify({
+      //         prompt: form.prompt, 
+      //     }),
+      // });
+
+      // const data = await response.json();
+      
+      console.log(data); // Log the response data for inspection
+
+
+        // set form photo to data url
+        setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` })
+
+         
+      } catch (error) {
+        alert(error)
+      } finally {
+        setGeneratingImg(false)
+      }
+    } else {
+      alert('Please provide proper prompt')
     }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+  }
+
   
 
 return (
@@ -88,7 +133,7 @@ return (
         <div className="mt-5 flex gap-5">
           <button
           type="button"
-          onClick={generateImg}
+          onClick={generateImage}
           className="text-white bg-green-700 font-medium rounded-md text text-sm w-full sm:w-auto px-5 py-2.5 text-center"
           >
             {generatingImg ? 'Generatine...' : 'Generate'}

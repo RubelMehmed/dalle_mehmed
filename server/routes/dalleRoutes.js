@@ -13,11 +13,20 @@ const configuration = new Configuration({
     apikey: process.env.OPENAI_API_KEY,
 })
 
+//__________ create instance for api
+
+const openai = new OpenAIApi(configuration);
+
+//___________let's connect api with route to send res
+router.route('/').get((req, res) => {
+    res.status(200).json({ message: 'Hello from DALL-E!'})
+})
+
 //__________the real call for prompt  and img
 
 router.route('/').post(async (req, res) => {
     try {
-        const { prompt } =req.body;
+        const { prompt } = req.body;
 
         const aiResponse = await openai.createImage({
             prompt,
@@ -32,23 +41,15 @@ router.route('/').post(async (req, res) => {
 
         //______send image to client
 
-        res.status(200).json({ image });
+        res.status(200).json({ photo: image });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).send(error?.response.data.error.message)
+        console.error(error);
+        res.status(500).send(error?.response.data.error.message || 'Something went wrong')
     }
 });
 
-//__________ create instance for api
-
-const openai = new OpenAIApi(configuration);
-
-//___________let's connect api with route to send res
 
 
-router.route('/').get((req, res) => {
-    res.send('Hello from DALL-E!')
-})
 
 export default router;
