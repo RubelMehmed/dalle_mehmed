@@ -1,0 +1,14 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment configuration
+.env
+.env.local
+.env.*.local
+
+# Dependency directories
+pnpify/
+.pnp/
+.pnp.js
